@@ -64,13 +64,17 @@ if (($handle = fopen($path, "r")) !== FALSE) {
 $filtered_array = [];
 $j = 0;
 for ($i = 0; $i < count($cluster_info); $i++) {
-    if (strpos($cluster_info[$i][2], "Kuala Muda")) {
+
+    $findMe = "Kuala Muda";
+    $pos = strpos($cluster_info[$i][2],$findMe);
+    if($pos !== false){
         $filtered_array[$j] = $cluster_info[$i];
         $category_array[] = $cluster_info[$i][5];
         $status_array[] = $cluster_info[$i][6];
         $district_array[] = $cluster_info[$i][3];
         $j++;
     }
+
 }
 //echo "<pre>";
 //var_dump($filtered_array);
