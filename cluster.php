@@ -63,6 +63,14 @@ if (($handle = fopen($path, "r")) !== FALSE) {
 // recursive back  filter
 $filtered_array = [];
 $j = 0;
+$sumNew = 0;
+$sumTotal = 0;
+$sumActive = 0;
+$sumTest = 0;
+$sumIcu = 0;
+$sumDeath = 0;
+$sumIcu = 0;
+$sumRecover = 0;
 for ($i = 0; $i < count($cluster_info); $i++) {
 
     $findMe = "Kuala Muda";
@@ -73,6 +81,14 @@ for ($i = 0; $i < count($cluster_info); $i++) {
         $status_array[] = $cluster_info[$i][6];
         $district_array[] = $cluster_info[$i][3];
         $j++;
+        $sumNew += $cluster_info[$i][7];
+        $sumTotal += $cluster_info[$i][8];
+        $sumActive += $cluster_info[$i][9];
+        $sumTest += $cluster_info[$i][10];
+        $sumIcu += $cluster_info[$i][11];
+
+        $sumDeath += $cluster_info[$i][12];
+        $sumRecover += $cluster_info[$i][13];
     }
 
 }
@@ -105,10 +121,10 @@ $district_array = array_unique($district_array);
 <body>
 <div class="container">
     <h1>Analisa data covid-19 di kuala muda,Kedah berdasarkan kluster terkini </h1>
-    <br />
+    <br/>
     <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span>
     <br/>
-    <br />
+    <br/>
     <table id="example" class="table table-striped table-bordered" style="width:100%">
         <thead>
         <tr>
@@ -170,7 +186,7 @@ $district_array = array_unique($district_array);
                         if (is_numeric($filtered_array[$i][$j])) {
                             echo "<td style=\"text-align: right\">" . number_format($filtered_array[$i][$j]) . "</td>\n";
                         } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $filtered_array[$i][$j], $split)) {
-                            echo "<td style=\"text-align: center\"><pre>" . $split[3]  . $split[2]  . $split[1] . "</pre></td>\n";
+                            echo "<td style=\"text-align: center\"><pre>" . $split[3] . $split[2] . $split[1] . "</pre></td>\n";
 
                         } else {
                             echo "<td>" . $filtered_array[$i][$j] . "</td>\n";
@@ -183,6 +199,46 @@ $district_array = array_unique($district_array);
         </tbody>
     </table>
 
+    <br/>
+    ** Jika anda filter di atas tidak akan berkait dengan data di bawah . Akan datang .Sabar
+    <br />
+    <table class="table table-striped table-bordered" style="width:100%">
+        <tr>
+            <th scope="row"><b>Baru</b></th>
+            <td id="sumNew" style="text-align: right"><?php echo number_format($sumNew); ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><b>Jumlah</b></th>
+            <td id="sumTotal" style="text-align: right"><?php echo number_format($sumTotal); ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><b>Aktif</b></th>
+            <td id="sumActive" style="text-align: right"><?php echo number_format($sumActive); ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><b>Ujian</b></th>
+            <td id="sumTest" style="text-align: right"><?php echo number_format($sumTest); ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><b>ICU</b></th>
+            <td id="sumIcu" style="text-align: right"><?php echo number_format($sumIcu); ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><b>Kematian</b></th>
+            <td id="sumDeath" style="text-align: right"><?php echo number_format($sumDeath); ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><b>Pulih</b></th>
+            <td id="sumRecover" style="text-align: right"><?php echo number_format($sumRecover); ?></td>
+        </tr>
+    </table>
+    <blockquote>
+        Sumber diperolehi dari : <a
+                href="https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/clusters.csv">MoH-Malaysia
+            GITHUB </a>
+        <br/>
+        Data hanya sekadar apa ada dan tidak ada berkaitan dengan server KKM
+    </blockquote>
 </div>
 
 <script>
@@ -193,7 +249,7 @@ $district_array = array_unique($district_array);
                 'csv'
             ]
         });
-        table.order([[7, 'asc'],[3, 'asc']]).draw();
+        table.order([[7, 'asc'], [3, 'asc']]).draw();
     });
 </script>
 </body>
