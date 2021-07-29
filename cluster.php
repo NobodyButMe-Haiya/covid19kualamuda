@@ -28,13 +28,13 @@ $title_info = [
     ["title" => "Negeri", "description" => "geographical epicentre of cluster, if localised; inter-district and inter-state clusters are possible and present in the dataset"],
     ["title" => "Daerah", "description" => "geographical epicentre of cluster, if localised; inter-district and inter-state clusters are possible and present in the dataset"],
 
-    ["title" => "Tarikh Mula Kluster", "description" => "date of declaration as cluster"],
+    ["title" => "Tarikh Mula", "description" => "date of declaration as cluster"],
     ["title" => "Tarikh Terakhir", "description" => "most recent date of onset of symptoms for individuals within the cluster. note that this is distinct from the date on which said individual was tested, and the date on which their test result was received; consequently, today's date may not necessarily be present in this column."],
     ["title" => "Kategori", "description" => "classification as per variable cluster_x above"],
     ["title" => "Status", "description" => "active or ended"],
-    ["title" => "Kes Baru(24) ", "description" => "number of new cases detected within cluster in the 24h since the last report"],
-    ["title" => "Jumlah Baru", "description" => "total number of cases traced to cluster"],
-    ["title" => "Jumlah Aktif", "description" => "active cases within cluster"],
+    ["title" => " Baru(24) ", "description" => "number of new cases detected within cluster in the 24h since the last report"],
+    ["title" => "Jumlah", "description" => "total number of cases traced to cluster"],
+    ["title" => "Aktif", "description" => "active cases within cluster"],
     ["title" => "Ujian", "description" => "number of tests carried out on individuals within the cluster; denominator for computing a cluster's current positivity rate"],
     ["title" => "ICU", "description" => "number of individuals within the cluster currently under intensive care"],
     ["title" => "Kematian", "description" => "number of individuals within the cluster who passed away due to COVID-19"],
@@ -51,7 +51,7 @@ $status_array = [];
 // sometimes we want to distinct kuala muda  but not the sub cluster
 $district_array = [];
 if (($handle = fopen($path, "r")) !== FALSE) {
-    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
         $num = count($data);
         for ($c = 0; $c < $num; $c++) {
             $cluster_info[$row][$c] = $data[$c];
@@ -66,8 +66,8 @@ $j = 0;
 for ($i = 0; $i < count($cluster_info); $i++) {
 
     $findMe = "Kuala Muda";
-    $pos = strpos($cluster_info[$i][2],$findMe);
-    if($pos !== false){
+    $pos = strpos($cluster_info[$i][2], $findMe);
+    if ($pos !== false) {
         $filtered_array[$j] = $cluster_info[$i];
         $category_array[] = $cluster_info[$i][5];
         $status_array[] = $cluster_info[$i][6];
@@ -92,7 +92,8 @@ $district_array = array_unique($district_array);
 
     <title>Analisa data covid-19 di Kedah berdasarkan kluster terkini </title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet"
+          id="bootstrap-css">
     <link href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
@@ -103,7 +104,11 @@ $district_array = array_unique($district_array);
 </head>
 <body>
 <div class="container">
-
+    <h1>Analisa data covid-19 di kuala muda,Kedah berdasarkan kluster terkini </h1>
+    <br />
+    <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span>
+    <br/>
+    <br />
     <table id="example" class="table table-striped table-bordered" style="width:100%">
         <thead>
         <tr>
@@ -122,7 +127,7 @@ $district_array = array_unique($district_array);
                     if ($j == 5) {
                         switch ($filtered_array[$i][$j]) {
                             case "religious":
-                                echo "<td>Keagamaan</td>\n";
+                                echo "<td>Agama</td>\n";
 
                                 break;
                             case "community":
@@ -134,7 +139,7 @@ $district_array = array_unique($district_array);
 
                                 break;
                             case "workplace":
-                                echo "<td>Tempat Kerja</td>\n";
+                                echo "<td>Kerja</td>\n";
 
                                 break;
                             case "detentionCentre":
@@ -142,7 +147,7 @@ $district_array = array_unique($district_array);
 
                                 break;
                             case "education":
-                                echo "<td>Tempat Belajar</td>\n";
+                                echo "<td>Belajar</td>\n";
 
                                 break;
                             default:
@@ -162,12 +167,12 @@ $district_array = array_unique($district_array);
                                 break;
                         }
                     } else {
-                        if(is_numeric($filtered_array[$i][$j])) {
+                        if (is_numeric($filtered_array[$i][$j])) {
                             echo "<td style=\"text-align: right\">" . number_format($filtered_array[$i][$j]) . "</td>\n";
-                        }else  if (preg_match ("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $filtered_array[$i][$j], $split)) {
-                            echo "<td style=\"text-align: center\"><pre>".$split[3]."-".$split[2]."-".$split[1]."</pre></td>\n";
+                        } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $filtered_array[$i][$j], $split)) {
+                            echo "<td style=\"text-align: center\"><pre>" . $split[3]  . $split[2]  . $split[1] . "</pre></td>\n";
 
-                        }else {
+                        } else {
                             echo "<td>" . $filtered_array[$i][$j] . "</td>\n";
                         }
                     }
@@ -181,12 +186,15 @@ $district_array = array_unique($district_array);
 </div>
 
 <script>
-    $(document).ready(function() {
-        const table = $('#example').DataTable( {
-            "iDisplayLength": 50
-        } );
-        table.order( [[ 7, 'asc' ]]).draw();
-    } );
+    $(document).ready(function () {
+        const table = $('#example').DataTable({
+            "iDisplayLength": 100,
+            buttons: [
+                'csv'
+            ]
+        });
+        table.order([[7, 'asc'],[3, 'asc']]).draw();
+    });
 </script>
 </body>
 </html>
