@@ -197,10 +197,22 @@ $district_array = array_unique($district_array);
             </tr>
         <?php } ?>
         </tbody>
+        <tfoot>
+        <tr>
+            <th colspan="8" style="text-align:right">Total:</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tfoot>
     </table>
 
     <br/>
-    ** Jika anda filter di atas tidak akan berkait dengan data di bawah . Akan datang .Sabar
+    ** Dibawah hanya rumusan semua
     <br />
     <table class="table table-striped table-bordered" style="width:100%">
         <tr>
@@ -245,7 +257,159 @@ $district_array = array_unique($district_array);
     $(document).ready(function () {
         const table = $('#example').DataTable({
             "iDisplayLength": 100,
-            buttons: [
+            "footerCallback": function ( row, data, start, end, display ) {
+                var api = this.api(), data;
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function ( i ) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '')*1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                };
+                // new
+                const totalNew = api
+                    .column(8)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalNew = api
+                    .column(8, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 8).footer() ).html(
+                    pageTotalNew.toLocaleString() +' / '+ totalNew.toLocaleString() +')'
+                );
+                // total
+                const total = api
+                    .column(9)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotal = api
+                    .column(9, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 9).footer() ).html(
+                    pageTotal.toLocaleString() +' / '+ total.toLocaleString() +')'
+                );
+                // active
+                const totalActive = api
+                    .column(10)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalActive = api
+                    .column(10, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 10).footer() ).html(
+                    pageTotalActive.toLocaleString() +' / '+ totalActive.toLocaleString() +')'
+                );
+                // test
+
+                const totalTest = api
+                    .column(11)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalTest = api
+                    .column(11, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 11).footer() ).html(
+                    pageTotalTest.toLocaleString() +' / '+ totalTest.toLocaleString() +')'
+                );
+                // icu
+                const totalIcu = api
+                    .column(12)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalIcu = api
+                    .column(12, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 12).footer() ).html(
+                    pageTotalIcu.toLocaleString() +' / '+ totalIcu.toLocaleString() +')'
+                );
+                // death
+                const totalDeath = api
+                    .column(13)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalDeath = api
+                    .column(13, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 13).footer() ).html(
+                    pageTotalDeath.toLocaleString() +' / '+ totalDeath.toLocaleString() +')'
+                );
+                // recover
+                const totalRecover = api
+                    .column(14)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalRecover = api
+                    .column(14, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 14).footer() ).html(
+                    pageTotalRecover.toLocaleString() +' / '+ totalRecover.toLocaleString() +')'
+                );
+            },
+            "buttons": [
                 'csv'
             ]
         });
