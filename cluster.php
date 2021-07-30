@@ -119,7 +119,7 @@ $district_array = array_unique($district_array);
     <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
 </head>
 <body>
-<div class="container">
+<div class="container-fluid">
     <h1>Analisa data covid-19 di kuala muda,Kedah berdasarkan kluster terkini </h1>
     <br/>
     <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span>
@@ -196,10 +196,11 @@ $district_array = array_unique($district_array);
                 <?php } ?>
             </tr>
         <?php } ?>
+
         </tbody>
         <tfoot>
         <tr>
-            <th colspan="8" style="text-align:right">Total:</th>
+            <th colspan="8" style="text-align:right">Jumlah : </th>
             <td></td>
             <td></td>
             <td></td>
@@ -209,6 +210,13 @@ $district_array = array_unique($district_array);
             <td></td>
         </tr>
         </tfoot>
+        <tr>
+            <th>#</th>
+            <?php for ($i = 0; $i < count($title_info); $i++) { ?>
+                <th scope="col"
+                    title="<?php echo $title_info[$i]["description"] ?>"><?php echo $title_info[$i]["title"] ?></th>
+            <?php } ?>
+        </tr>
     </table>
 
     <br/>
@@ -216,23 +224,23 @@ $district_array = array_unique($district_array);
     <br />
     <table class="table table-striped table-bordered" style="width:100%">
         <tr>
-            <th scope="row"><b>Baru</b></th>
+            <th scope="row"><b>Baru : </b></th>
             <td id="sumNew" style="text-align: right"><?php echo number_format($sumNew); ?></td>
         </tr>
         <tr>
-            <th scope="row"><b>Jumlah</b></th>
+            <th scope="row"><b>Jumlah : </b></th>
             <td id="sumTotal" style="text-align: right"><?php echo number_format($sumTotal); ?></td>
         </tr>
         <tr>
-            <th scope="row"><b>Aktif</b></th>
+            <th scope="row"><b>Aktif : </b></th>
             <td id="sumActive" style="text-align: right"><?php echo number_format($sumActive); ?></td>
         </tr>
         <tr>
-            <th scope="row"><b>Ujian</b></th>
+            <th scope="row"><b>Ujian : </b></th>
             <td id="sumTest" style="text-align: right"><?php echo number_format($sumTest); ?></td>
         </tr>
         <tr>
-            <th scope="row"><b>ICU</b></th>
+            <th scope="row"><b>ICU : </b></th>
             <td id="sumIcu" style="text-align: right"><?php echo number_format($sumIcu); ?></td>
         </tr>
         <tr>
