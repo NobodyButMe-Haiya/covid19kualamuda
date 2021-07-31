@@ -140,6 +140,8 @@ $district_array = array_unique($district_array);
 
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.25/sorting/datetime-moment.js"></script>
 </head>
 <body>
 <div class="container-fluid">
@@ -209,7 +211,7 @@ $district_array = array_unique($district_array);
                         if (is_numeric($filtered_array[$i][$j])) {
                             echo "<td style=\"text-align: right\">" . number_format($filtered_array[$i][$j]) . "</td>\n";
                         } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $filtered_array[$i][$j], $split)) {
-                            echo "<td style=\"text-align: center\"><pre>" . $split[3] . $split[2] . $split[1] . "</pre></td>\n";
+                            echo "<td style=\"text-align: center\"><pre>" . $split[3] ."/". $split[2] ."/". $split[1] . "</pre></td>\n";
 
                         } else {
                             echo "<td>" . $filtered_array[$i][$j] . "</td>\n";
@@ -305,7 +307,7 @@ $district_array = array_unique($district_array);
                         if (is_numeric($cluster_info_outside_district[$i][$j])) {
                             echo "<td style=\"text-align: right\">" . number_format($cluster_info_outside_district[$i][$j]) . "</td>\n";
                         } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $cluster_info_outside_district[$i][$j], $split)) {
-                            echo "<td style=\"text-align: center\"><pre>" . $split[3] . $split[2] . $split[1] . "</pre></td>\n";
+                            echo "<td style=\"text-align: center\"><pre>" . $split[3] ."/". $split[2] ."/". $split[1] . "</pre></td>\n";
 
                         } else {
                             echo "<td>" . $cluster_info_outside_district[$i][$j] . "</td>\n";
@@ -381,9 +383,12 @@ $district_array = array_unique($district_array);
 </div>
 
 <script>
+    $.fn.dataTable.moment('DD/MM/YYYY');
+
     $(document).ready(function () {
         const tableKualaMuda = $('#kuala_muda').DataTable({
             "iDisplayLength": 100,
+            "ordering" : true,
             "footerCallback": function ( row, data, start, end, display ) {
                 var api = this.api(), data;
 
@@ -540,11 +545,12 @@ $district_array = array_unique($district_array);
                 'csv'
             ]
         });
-        tableKualaMuda.order([[7, 'asc'], [3, 'asc']]).draw();
+        tableKualaMuda.order([[7, 'asc'], [4, 'desc']]).draw();
         // non kuala muda
 
         const tableNonKualaMuda = $('#non_kuala_muda').DataTable({
             "iDisplayLength": 100,
+            "ordering" : true,
             "footerCallback": function ( row, data, start, end, display ) {
                 var api = this.api(), data;
 
@@ -701,7 +707,7 @@ $district_array = array_unique($district_array);
                 'csv'
             ]
         });
-        tableNonKualaMuda.order([[7, 'asc'], [3, 'asc']]).draw();
+        tableNonKualaMuda.order([[7, 'asc'], [4, 'desc']]).draw();
     });
 </script>
 </body>
