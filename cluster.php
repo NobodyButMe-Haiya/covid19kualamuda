@@ -75,6 +75,19 @@ $sumIcu = 0;
 $sumDeath = 0;
 $sumIcu = 0;
 $sumRecover = 0;
+
+$sumReligious = 0;
+$sumCommunity = 0;
+$sumHighRisk = 0;
+$sumWorkplace = 0;
+$sumDetentionCentre = 0;
+$sumEducation = 0;
+
+$sumActiveCluster = 0;
+$sumActiveDistrictCluster = 0;
+$sumEndedCluster = 0;
+$sumEndedDistrictCluster = 0;
+
 for ($i = 0; $i < count($cluster_info); $i++) {
 
     $findMe = "Kuala Muda";
@@ -96,13 +109,60 @@ for ($i = 0; $i < count($cluster_info); $i++) {
         $sumRecover += $cluster_info[$i][13];
 
         // some part may contain kuala muda citizen but in diff state and district
-        if($findMe != substr($cluster_info[$i][2],0 ,strlen($findMe))) {
+        if ($findMe != substr($cluster_info[$i][2], 0, strlen($findMe))) {
             // this is diff place
-           // echo "name : [".$cluster_info[$i][0]."]\n<br />";
+            // echo "name : [".$cluster_info[$i][0]."]\n<br />";
             $cluster_info_outside_district[$o] = $cluster_info[$i];
             $o++;
             // what if we want outside state ? declare default state and filter via substr again.
+        } else {
+            switch ($cluster_info[$i][6]) {
+                case "active":
+                    $sumActiveDistrictCluster++;
+                    break;
+                case "ended":
+                    $sumEndedDistrictCluster++;
+                    break;
+            }
         }
+
+        // sometimes we want to make data useful by category .crosstab much easier but we not in sql
+        switch ($cluster_info[$i][5]) {
+            case "religious":
+                $sumReligious++;
+
+                break;
+            case "community":
+                $sumCommunity++;
+
+                break;
+            case "highRisk":
+                $sumHighRisk++;
+
+                break;
+            case "workplace":
+                $sumWorkplace++;
+
+                break;
+            case "detentionCentre":
+                $sumDetentionCentre++;
+
+                break;
+            case "education":
+                $sumEducation++;
+
+                break;
+        }
+
+        switch ($cluster_info[$i][6]) {
+            case "active":
+                $sumActiveCluster++;
+                break;
+            case "ended":
+                $sumEndedCluster++;
+                break;
+        }
+
     }
 
 }
@@ -145,10 +205,144 @@ $district_array = array_unique($district_array);
 </head>
 <body>
 <div class="container-fluid">
+    <br/>
     <h1>Analisa data covid-19 di kuala muda,Kedah berdasarkan kluster terkini </h1>
     <br/>
     <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span>
     <br/>
+    <h2>
+        Statistik Aktif
+    </h2>
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Aktif Kluster di kuala muda sahaja
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($sumActiveDistrictCluster); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Aktif Kluster Kuala Muda dan lain tempat
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($sumActiveCluster); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Tamat Kluster Kuala Muda Sahaja
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center ">
+                        <?php echo number_format($sumEndedDistrictCluster); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Tamat Kluster Kuala Muda dan lain tempat
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center ">
+                        <?php echo number_format($sumEndedCluster); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h2>Statisik Category</h2>
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Keagamaan
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px">
+                        <?php echo number_format($sumReligious); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Komuniti
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px">
+                        <?php echo number_format($sumCommunity); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Risiko Tinggi
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px">
+                        <?php echo number_format($sumReligious); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row align-items-center">
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Tempat Kerja
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px">
+                        <?php echo number_format($sumWorkplace); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Tahanan
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px">
+                        <?php echo number_format($sumDetentionCentre); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Belajar
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px">
+                        <?php echo number_format($sumEducation); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
     <br/>
     <table id="kuala_muda" class="table table-striped table-bordered" style="width:100%">
         <thead>
@@ -168,27 +362,27 @@ $district_array = array_unique($district_array);
                     if ($j == 5) {
                         switch ($filtered_array[$i][$j]) {
                             case "religious":
-                                echo "<td>Agama</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Agama</td>\n";
 
                                 break;
                             case "community":
-                                echo "<td>Komuniti</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Komuniti</td>\n";
 
                                 break;
                             case "highRisk":
-                                echo "<td>Risiko Tinggi</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Risiko Tinggi</td>\n";
 
                                 break;
                             case "workplace":
-                                echo "<td>Kerja</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Kerja</td>\n";
 
                                 break;
                             case "detentionCentre":
-                                echo "<td>Tahanan</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Tahanan</td>\n";
 
                                 break;
                             case "education":
-                                echo "<td>Belajar</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Belajar</td>\n";
 
                                 break;
                             default:
@@ -198,23 +392,23 @@ $district_array = array_unique($district_array);
                     } else if ($j == 6) {
                         switch ($filtered_array[$i][$j]) {
                             case "active":
-                                echo "<td>Aktif</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Aktif</td>\n";
                                 break;
                             case "ended":
-                                echo "<td>Tamat</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Tamat</td>\n";
                                 break;
                             default:
-                                echo "<td>Salah</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Salah</td>\n";
                                 break;
                         }
                     } else {
                         if (is_numeric($filtered_array[$i][$j])) {
-                            echo "<td style=\"text-align: right\">" . number_format($filtered_array[$i][$j]) . "</td>\n";
+                            echo "<td title=\"" . $title_info[$j]["description"] . "\" style=\"text-align: right\">" . number_format($filtered_array[$i][$j]) . "</td>\n";
                         } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $filtered_array[$i][$j], $split)) {
-                            echo "<td style=\"text-align: center\"><pre>" . $split[3] ."/". $split[2] ."/". $split[1] . "</pre></td>\n";
+                            echo "<td title=\"" . $title_info[$j]["description"] . "\" style=\"text-align: center\"><pre>" . $split[3] . "/" . $split[2] . "/" . $split[1] . "</pre></td>\n";
 
                         } else {
-                            echo "<td>" . $filtered_array[$i][$j] . "</td>\n";
+                            echo "<td title=\"" . $title_info[$j]["description"] . "\">" . $filtered_array[$i][$j] . "</td>\n";
                         }
                     }
                     ?>
@@ -225,7 +419,7 @@ $district_array = array_unique($district_array);
         </tbody>
         <tfoot>
         <tr>
-            <th colspan="8" style="text-align:right">Jumlah : </th>
+            <th colspan="8" style="text-align:right">Jumlah :</th>
             <td></td>
             <td></td>
             <td></td>
@@ -245,7 +439,7 @@ $district_array = array_unique($district_array);
     </table>
 
     <br/>
-    <h2>Kluster  bukan berasal dari Kuala Muda</h2>
+    <h2>Kluster bukan berasal dari Kuala Muda</h2>
     <table id="non_kuala_muda" class="table table-striped table-bordered" style="width:100%">
         <thead>
         <tr>
@@ -264,53 +458,53 @@ $district_array = array_unique($district_array);
                     if ($j == 5) {
                         switch ($cluster_info_outside_district[$i][$j]) {
                             case "religious":
-                                echo "<td>Agama</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Agama</td>\n";
 
                                 break;
                             case "community":
-                                echo "<td>Komuniti</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Komuniti</td>\n";
 
                                 break;
                             case "highRisk":
-                                echo "<td>Risiko Tinggi</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Risiko Tinggi</td>\n";
 
                                 break;
                             case "workplace":
-                                echo "<td>Kerja</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Kerja</td>\n";
 
                                 break;
                             case "detentionCentre":
-                                echo "<td>Tahanan</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Tahanan</td>\n";
 
                                 break;
                             case "education":
-                                echo "<td>Belajar</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Belajar</td>\n";
 
                                 break;
                             default:
-                                echo "<td>Salah</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Salah</td>\n";
                                 break;
                         }
                     } else if ($j == 6) {
                         switch ($cluster_info_outside_district[$i][$j]) {
                             case "active":
-                                echo "<td>Aktif</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Aktif</td>\n";
                                 break;
                             case "ended":
-                                echo "<td>Tamat</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Tamat</td>\n";
                                 break;
                             default:
-                                echo "<td>Salah</td>\n";
+                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Salah</td>\n";
                                 break;
                         }
                     } else {
                         if (is_numeric($cluster_info_outside_district[$i][$j])) {
-                            echo "<td style=\"text-align: right\">" . number_format($cluster_info_outside_district[$i][$j]) . "</td>\n";
+                            echo "<td title=\"" . $title_info[$j]["description"] . "\" style=\"text-align: right\">" . number_format($cluster_info_outside_district[$i][$j]) . "</td>\n";
                         } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $cluster_info_outside_district[$i][$j], $split)) {
-                            echo "<td style=\"text-align: center\"><pre>" . $split[3] ."/". $split[2] ."/". $split[1] . "</pre></td>\n";
+                            echo "<td title=\"" . $title_info[$j]["description"] . "\" style=\"text-align: center\"><pre>" . $split[3] . "/" . $split[2] . "/" . $split[1] . "</pre></td>\n";
 
                         } else {
-                            echo "<td>" . $cluster_info_outside_district[$i][$j] . "</td>\n";
+                            echo "<td title=\"" . $title_info[$j]["description"] . "\">" . $cluster_info_outside_district[$i][$j] . "</td>\n";
                         }
                     }
                     ?>
@@ -321,7 +515,7 @@ $district_array = array_unique($district_array);
         </tbody>
         <tfoot>
         <tr>
-            <th colspan="8" style="text-align:right">Jumlah : </th>
+            <th colspan="8" style="text-align:right">Jumlah :</th>
             <td></td>
             <td></td>
             <td></td>
@@ -339,10 +533,10 @@ $district_array = array_unique($district_array);
             <?php } ?>
         </tr>
     </table>
-    <br />
-    <br />
+    <br/>
+    <br/>
     ** Dibawah hanya rumusan semua
-    <br />
+    <br/>
     <table class="table table-striped table-bordered" style="width:100%">
         <tr>
             <th scope="row"><b>Baru : </b></th>
@@ -388,14 +582,14 @@ $district_array = array_unique($district_array);
     $(document).ready(function () {
         const tableKualaMuda = $('#kuala_muda').DataTable({
             "iDisplayLength": 100,
-            "ordering" : true,
-            "footerCallback": function ( row, data, start, end, display ) {
+            "ordering": true,
+            "footerCallback": function (row, data, start, end, display) {
                 var api = this.api(), data;
 
                 // Remove the formatting to get integer data for summation
-                var intVal = function ( i ) {
+                var intVal = function (i) {
                     return typeof i === 'string' ?
-                        i.replace(/[\$,]/g, '')*1 :
+                        i.replace(/[\$,]/g, '') * 1 :
                         typeof i === 'number' ?
                             i : 0;
                 };
@@ -416,8 +610,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 8).footer() ).html(
-                    pageTotalNew.toLocaleString() +' / '+ totalNew.toLocaleString() +')'
+                $(api.column(8).footer()).html(
+                    pageTotalNew.toLocaleString() + ' / ' + totalNew.toLocaleString() + ')'
                 );
                 // total
                 const total = api
@@ -436,8 +630,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 9).footer() ).html(
-                    pageTotal.toLocaleString() +' / '+ total.toLocaleString() +')'
+                $(api.column(9).footer()).html(
+                    pageTotal.toLocaleString() + ' / ' + total.toLocaleString() + ')'
                 );
                 // active
                 const totalActive = api
@@ -456,8 +650,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 10).footer() ).html(
-                    pageTotalActive.toLocaleString() +' / '+ totalActive.toLocaleString() +')'
+                $(api.column(10).footer()).html(
+                    pageTotalActive.toLocaleString() + ' / ' + totalActive.toLocaleString() + ')'
                 );
                 // test
 
@@ -477,8 +671,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 11).footer() ).html(
-                    pageTotalTest.toLocaleString() +' / '+ totalTest.toLocaleString() +')'
+                $(api.column(11).footer()).html(
+                    pageTotalTest.toLocaleString() + ' / ' + totalTest.toLocaleString() + ')'
                 );
                 // icu
                 const totalIcu = api
@@ -497,8 +691,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 12).footer() ).html(
-                    pageTotalIcu.toLocaleString() +' / '+ totalIcu.toLocaleString() +')'
+                $(api.column(12).footer()).html(
+                    pageTotalIcu.toLocaleString() + ' / ' + totalIcu.toLocaleString() + ')'
                 );
                 // death
                 const totalDeath = api
@@ -517,8 +711,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 13).footer() ).html(
-                    pageTotalDeath.toLocaleString() +' / '+ totalDeath.toLocaleString() +')'
+                $(api.column(13).footer()).html(
+                    pageTotalDeath.toLocaleString() + ' / ' + totalDeath.toLocaleString() + ')'
                 );
                 // recover
                 const totalRecover = api
@@ -537,8 +731,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 14).footer() ).html(
-                    pageTotalRecover.toLocaleString() +' / '+ totalRecover.toLocaleString() +')'
+                $(api.column(14).footer()).html(
+                    pageTotalRecover.toLocaleString() + ' / ' + totalRecover.toLocaleString() + ')'
                 );
             },
             "buttons": [
@@ -550,14 +744,14 @@ $district_array = array_unique($district_array);
 
         const tableNonKualaMuda = $('#non_kuala_muda').DataTable({
             "iDisplayLength": 100,
-            "ordering" : true,
-            "footerCallback": function ( row, data, start, end, display ) {
+            "ordering": true,
+            "footerCallback": function (row, data, start, end, display) {
                 var api = this.api(), data;
 
                 // Remove the formatting to get integer data for summation
-                var intVal = function ( i ) {
+                var intVal = function (i) {
                     return typeof i === 'string' ?
-                        i.replace(/[\$,]/g, '')*1 :
+                        i.replace(/[\$,]/g, '') * 1 :
                         typeof i === 'number' ?
                             i : 0;
                 };
@@ -578,8 +772,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 8).footer() ).html(
-                    pageTotalNew.toLocaleString() +' / '+ totalNew.toLocaleString() +')'
+                $(api.column(8).footer()).html(
+                    pageTotalNew.toLocaleString() + ' / ' + totalNew.toLocaleString() + ')'
                 );
                 // total
                 const total = api
@@ -598,8 +792,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 9).footer() ).html(
-                    pageTotal.toLocaleString() +' / '+ total.toLocaleString() +')'
+                $(api.column(9).footer()).html(
+                    pageTotal.toLocaleString() + ' / ' + total.toLocaleString() + ')'
                 );
                 // active
                 const totalActive = api
@@ -618,8 +812,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 10).footer() ).html(
-                    pageTotalActive.toLocaleString() +' / '+ totalActive.toLocaleString() +')'
+                $(api.column(10).footer()).html(
+                    pageTotalActive.toLocaleString() + ' / ' + totalActive.toLocaleString() + ')'
                 );
                 // test
 
@@ -639,8 +833,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 11).footer() ).html(
-                    pageTotalTest.toLocaleString() +' / '+ totalTest.toLocaleString() +')'
+                $(api.column(11).footer()).html(
+                    pageTotalTest.toLocaleString() + ' / ' + totalTest.toLocaleString() + ')'
                 );
                 // icu
                 const totalIcu = api
@@ -659,8 +853,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 12).footer() ).html(
-                    pageTotalIcu.toLocaleString() +' / '+ totalIcu.toLocaleString() +')'
+                $(api.column(12).footer()).html(
+                    pageTotalIcu.toLocaleString() + ' / ' + totalIcu.toLocaleString() + ')'
                 );
                 // death
                 const totalDeath = api
@@ -679,8 +873,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 13).footer() ).html(
-                    pageTotalDeath.toLocaleString() +' / '+ totalDeath.toLocaleString() +')'
+                $(api.column(13).footer()).html(
+                    pageTotalDeath.toLocaleString() + ' / ' + totalDeath.toLocaleString() + ')'
                 );
                 // recover
                 const totalRecover = api
@@ -699,8 +893,8 @@ $district_array = array_unique($district_array);
                     }, 0);
 
                 // Update footer
-                $( api.column( 14).footer() ).html(
-                    pageTotalRecover.toLocaleString() +' / '+ totalRecover.toLocaleString() +')'
+                $(api.column(14).footer()).html(
+                    pageTotalRecover.toLocaleString() + ' / ' + totalRecover.toLocaleString() + ')'
                 );
             },
             "buttons": [
