@@ -45,6 +45,7 @@ $title_info = [
 $row = 0;
 $data = [];
 $cluster_info = [];
+$cluster_info_outside_district = [];
 // category_array
 $category_array = [];
 $status_array = [];
@@ -62,7 +63,10 @@ if (($handle = fopen($path, "r")) !== FALSE) {
 }
 // recursive back  filter
 $filtered_array = [];
+// future if we want to drill down .
+$state_name = [];
 $j = 0;
+$o = 0;
 $sumNew = 0;
 $sumTotal = 0;
 $sumActive = 0;
@@ -74,6 +78,7 @@ $sumRecover = 0;
 for ($i = 0; $i < count($cluster_info); $i++) {
 
     $findMe = "Kuala Muda";
+    $state_name[] = $cluster_info[$i][0];
     $pos = strpos($cluster_info[$i][2], $findMe);
     if ($pos !== false) {
         $filtered_array[$j] = $cluster_info[$i];
@@ -89,17 +94,35 @@ for ($i = 0; $i < count($cluster_info); $i++) {
 
         $sumDeath += $cluster_info[$i][12];
         $sumRecover += $cluster_info[$i][13];
+
+        // some part may contain kuala muda citizen but in diff state and district
+        if($findMe != substr($cluster_info[$i][2],0 ,strlen($findMe))) {
+            // this is diff place
+           // echo "name : [".$cluster_info[$i][0]."]\n<br />";
+            $cluster_info_outside_district[$o] = $cluster_info[$i];
+            $o++;
+            // what if we want outside state ? declare default state and filter via substr again.
+        }
     }
 
 }
+//var_dump($cluster_info_outside_district);
+//exit();
 //echo "<pre>";
 //var_dump($filtered_array);
 //echo "</pre>";
 // category_array
 $category_array = array_unique($category_array);
+//echo  "<!---  ".var_export($category_array)." -->";
+
 $status_array = array_unique($status_array);
+//echo  "<!---  ".var_export($status_array)." -->";
+
 // sometimes we want to distinct kuala muda  but not the sub cluster
 $district_array = array_unique($district_array);
+
+//echo  "<!---  ".var_export($district_array)." -->";
+
 ?>
 <html lang="ms">
 <head>
@@ -125,7 +148,7 @@ $district_array = array_unique($district_array);
     <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span>
     <br/>
     <br/>
-    <table id="example" class="table table-striped table-bordered" style="width:100%">
+    <table id="kuala_muda" class="table table-striped table-bordered" style="width:100%">
         <thead>
         <tr>
             <th>#</th>
@@ -220,6 +243,102 @@ $district_array = array_unique($district_array);
     </table>
 
     <br/>
+    <h2>Kluster  bukan berasal dari Kuala Muda</h2>
+    <table id="non_kuala_muda" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+        <tr>
+            <th>#</th>
+            <?php for ($i = 0; $i < count($title_info); $i++) { ?>
+                <th scope="col"
+                    title="<?php echo $title_info[$i]["description"] ?>"><?php echo $title_info[$i]["title"] ?></th>
+            <?php } ?>
+        </tr>
+        </thead>
+        <tbody>
+        <?php for ($i = 0; $i < count($cluster_info_outside_district); $i++) { ?>
+            <tr>
+                <th scope="row"><?php echo $i; ?></th>
+                <?php for ($j = 0; $j < count($cluster_info_outside_district[$i]); $j++) {
+                    if ($j == 5) {
+                        switch ($cluster_info_outside_district[$i][$j]) {
+                            case "religious":
+                                echo "<td>Agama</td>\n";
+
+                                break;
+                            case "community":
+                                echo "<td>Komuniti</td>\n";
+
+                                break;
+                            case "highRisk":
+                                echo "<td>Risiko Tinggi</td>\n";
+
+                                break;
+                            case "workplace":
+                                echo "<td>Kerja</td>\n";
+
+                                break;
+                            case "detentionCentre":
+                                echo "<td>Tahanan</td>\n";
+
+                                break;
+                            case "education":
+                                echo "<td>Belajar</td>\n";
+
+                                break;
+                            default:
+                                echo "<td>Salah</td>\n";
+                                break;
+                        }
+                    } else if ($j == 6) {
+                        switch ($cluster_info_outside_district[$i][$j]) {
+                            case "active":
+                                echo "<td>Aktif</td>\n";
+                                break;
+                            case "ended":
+                                echo "<td>Tamat</td>\n";
+                                break;
+                            default:
+                                echo "<td>Salah</td>\n";
+                                break;
+                        }
+                    } else {
+                        if (is_numeric($cluster_info_outside_district[$i][$j])) {
+                            echo "<td style=\"text-align: right\">" . number_format($cluster_info_outside_district[$i][$j]) . "</td>\n";
+                        } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $cluster_info_outside_district[$i][$j], $split)) {
+                            echo "<td style=\"text-align: center\"><pre>" . $split[3] . $split[2] . $split[1] . "</pre></td>\n";
+
+                        } else {
+                            echo "<td>" . $cluster_info_outside_district[$i][$j] . "</td>\n";
+                        }
+                    }
+                    ?>
+                <?php } ?>
+            </tr>
+        <?php } ?>
+
+        </tbody>
+        <tfoot>
+        <tr>
+            <th colspan="8" style="text-align:right">Jumlah : </th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tfoot>
+        <tr>
+            <th>#</th>
+            <?php for ($i = 0; $i < count($title_info); $i++) { ?>
+                <th scope="col"
+                    title="<?php echo $title_info[$i]["description"] ?>"><?php echo $title_info[$i]["title"] ?></th>
+            <?php } ?>
+        </tr>
+    </table>
+    <br />
+    <br />
     ** Dibawah hanya rumusan semua
     <br />
     <table class="table table-striped table-bordered" style="width:100%">
@@ -263,7 +382,7 @@ $district_array = array_unique($district_array);
 
 <script>
     $(document).ready(function () {
-        const table = $('#example').DataTable({
+        const tableKualaMuda = $('#kuala_muda').DataTable({
             "iDisplayLength": 100,
             "footerCallback": function ( row, data, start, end, display ) {
                 var api = this.api(), data;
@@ -421,7 +540,168 @@ $district_array = array_unique($district_array);
                 'csv'
             ]
         });
-        table.order([[7, 'asc'], [3, 'asc']]).draw();
+        tableKualaMuda.order([[7, 'asc'], [3, 'asc']]).draw();
+        // non kuala muda
+
+        const tableNonKualaMuda = $('#non_kuala_muda').DataTable({
+            "iDisplayLength": 100,
+            "footerCallback": function ( row, data, start, end, display ) {
+                var api = this.api(), data;
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function ( i ) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '')*1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                };
+                // new
+                const totalNew = api
+                    .column(8)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalNew = api
+                    .column(8, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 8).footer() ).html(
+                    pageTotalNew.toLocaleString() +' / '+ totalNew.toLocaleString() +')'
+                );
+                // total
+                const total = api
+                    .column(9)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotal = api
+                    .column(9, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 9).footer() ).html(
+                    pageTotal.toLocaleString() +' / '+ total.toLocaleString() +')'
+                );
+                // active
+                const totalActive = api
+                    .column(10)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalActive = api
+                    .column(10, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 10).footer() ).html(
+                    pageTotalActive.toLocaleString() +' / '+ totalActive.toLocaleString() +')'
+                );
+                // test
+
+                const totalTest = api
+                    .column(11)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalTest = api
+                    .column(11, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 11).footer() ).html(
+                    pageTotalTest.toLocaleString() +' / '+ totalTest.toLocaleString() +')'
+                );
+                // icu
+                const totalIcu = api
+                    .column(12)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalIcu = api
+                    .column(12, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 12).footer() ).html(
+                    pageTotalIcu.toLocaleString() +' / '+ totalIcu.toLocaleString() +')'
+                );
+                // death
+                const totalDeath = api
+                    .column(13)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalDeath = api
+                    .column(13, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 13).footer() ).html(
+                    pageTotalDeath.toLocaleString() +' / '+ totalDeath.toLocaleString() +')'
+                );
+                // recover
+                const totalRecover = api
+                    .column(14)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                const pageTotalRecover = api
+                    .column(14, {page: 'current'})
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                $( api.column( 14).footer() ).html(
+                    pageTotalRecover.toLocaleString() +' / '+ totalRecover.toLocaleString() +')'
+                );
+            },
+            "buttons": [
+                'csv'
+            ]
+        });
+        tableNonKualaMuda.order([[7, 'asc'], [3, 'asc']]).draw();
     });
 </script>
 </body>
