@@ -90,9 +90,9 @@ $sumEndedDistrictCluster = 0;
 
 for ($i = 0; $i < count($cluster_info); $i++) {
 
-    $findMe = "Kuala Muda";
+    $findMe = "Kedah";
     $state_name[] = $cluster_info[$i][0];
-    $pos = strpos($cluster_info[$i][2], $findMe);
+    $pos = strpos($cluster_info[$i][1], $findMe);
     if ($pos !== false) {
         $filtered_array[$j] = $cluster_info[$i];
         $category_array[] = $cluster_info[$i][5];
@@ -107,24 +107,6 @@ for ($i = 0; $i < count($cluster_info); $i++) {
 
         $sumDeath += $cluster_info[$i][12];
         $sumRecover += $cluster_info[$i][13];
-
-        // some part may contain kuala muda citizen but in diff state and district
-        if ($findMe != substr($cluster_info[$i][2], 0, strlen($findMe))) {
-            // this is diff place
-            // echo "name : [".$cluster_info[$i][0]."]\n<br />";
-            $cluster_info_outside_district[$o] = $cluster_info[$i];
-            $o++;
-            // what if we want outside state ? declare default state and filter via substr again.
-        } else {
-            switch ($cluster_info[$i][6]) {
-                case "active":
-                    $sumActiveDistrictCluster++;
-                    break;
-                case "ended":
-                    $sumEndedDistrictCluster++;
-                    break;
-            }
-        }
 
         // sometimes we want to make data useful by category .crosstab much easier but we not in sql
         switch ($cluster_info[$i][5]) {
@@ -219,10 +201,10 @@ $district_array = array_unique($district_array);
 <body>
 <div class="container-fluid" style="background: #D3D3D3">
     <br/>
-    <h1>Analisa data covid-19 di kuala muda,Kedah berdasarkan kluster terkini </h1>
+    <h1>Analisa data covid-19 di Kedah berdasarkan kluster terkini </h1>
     <br/>
     <h2>
-    <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span></h2>
+        <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span></h2>
     <br/>
     <br />
     <h2>
@@ -233,19 +215,7 @@ $district_array = array_unique($district_array);
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Aktif Kluster di kuala muda sahaja
-                </div>
-                <div class="card-body">
-                    <span style="font-size: 24px;text-align: center">
-                        <?php echo number_format($sumActiveDistrictCluster); ?>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-header">
-                    Aktif Kluster Kuala Muda dan lain tempat
+                    Aktif Kluster
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -254,25 +224,10 @@ $district_array = array_unique($district_array);
                 </div>
             </div>
         </div>
-    </div>
-    <br/>
-    <div class="row align-items-center">
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Tamat Kluster Kuala Muda Sahaja
-                </div>
-                <div class="card-body">
-                    <span style="font-size: 24px;text-align: center ">
-                        <?php echo number_format($sumEndedDistrictCluster); ?>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-header">
-                    Tamat Kluster Kuala Muda dan lain tempat
+                    Tamat Kluster
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center ">
@@ -282,7 +237,8 @@ $district_array = array_unique($district_array);
             </div>
         </div>
     </div>
-    <br />
+    <br/>
+
     <h2>Statisik Category</h2>
     <br />
     <div class="row align-items-center">
@@ -364,7 +320,7 @@ $district_array = array_unique($district_array);
         </div>
     </div>
     <br/>
-    <table id="kuala_muda" class="table table-striped table-bordered" style="width:100%">
+    <table id="kedah" class="table table-striped table-bordered" style="width:100%">
         <thead class="thead-dark">
         <tr>
             <th>#</th>
@@ -459,101 +415,6 @@ $district_array = array_unique($district_array);
     </table>
 
     <br/>
-    <h2>Kluster bukan berasal dari Kuala Muda</h2>
-    <table id="non_kuala_muda" class="table table-striped table-bordered" style="width:100%">
-        <thead class="thead-dark">
-        <tr>
-            <th>#</th>
-            <?php for ($i = 0; $i < count($title_info); $i++) { ?>
-                <th scope="col"
-                    title="<?php echo $title_info[$i]["description"] ?>"><?php echo $title_info[$i]["title"] ?></th>
-            <?php } ?>
-        </tr>
-        </thead>
-        <tbody>
-        <?php for ($i = 0; $i < count($cluster_info_outside_district); $i++) { ?>
-            <tr>
-                <th scope="row"><?php echo $i; ?></th>
-                <?php for ($j = 0; $j < count($cluster_info_outside_district[$i]); $j++) {
-                    if ($j == 5) {
-                        switch ($cluster_info_outside_district[$i][$j]) {
-                            case "religious":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Agama</td>\n";
-
-                                break;
-                            case "community":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Komuniti</td>\n";
-
-                                break;
-                            case "highRisk":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Risiko Tinggi</td>\n";
-
-                                break;
-                            case "workplace":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Kerja</td>\n";
-
-                                break;
-                            case "detentionCentre":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Tahanan</td>\n";
-
-                                break;
-                            case "education":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Belajar</td>\n";
-
-                                break;
-                            default:
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Salah</td>\n";
-                                break;
-                        }
-                    } else if ($j == 6) {
-                        switch ($cluster_info_outside_district[$i][$j]) {
-                            case "active":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Aktif</td>\n";
-                                break;
-                            case "ended":
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Tamat</td>\n";
-                                break;
-                            default:
-                                echo "<td title=\"" . $title_info[$j]["description"] . "\">Salah</td>\n";
-                                break;
-                        }
-                    } else {
-                        if (is_numeric($cluster_info_outside_district[$i][$j])) {
-                            echo "<td title=\"" . $title_info[$j]["description"] . "\" style=\"text-align: right\">" . number_format($cluster_info_outside_district[$i][$j]) . "</td>\n";
-                        } else if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $cluster_info_outside_district[$i][$j], $split)) {
-                            echo "<td title=\"" . $title_info[$j]["description"] . "\" style=\"text-align: center\"><pre>" . $split[3] . "/" . $split[2] . "/" . $split[1] . "</pre></td>\n";
-
-                        } else {
-                            echo "<td title=\"" . $title_info[$j]["description"] . "\">" . $cluster_info_outside_district[$i][$j] . "</td>\n";
-                        }
-                    }
-                    ?>
-                <?php } ?>
-            </tr>
-        <?php } ?>
-
-        </tbody>
-        <tfoot>
-        <tr>
-            <th colspan="8" style="text-align:right">Jumlah :</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        </tfoot>
-        <tr>
-            <th>#</th>
-            <?php for ($i = 0; $i < count($title_info); $i++) { ?>
-                <th scope="col"
-                    title="<?php echo $title_info[$i]["description"] ?>"><?php echo $title_info[$i]["title"] ?></th>
-            <?php } ?>
-        </tr>
-    </table>
-    <br/>
     <br/>
     ** Dibawah hanya rumusan semua
     <br/>
@@ -589,7 +450,7 @@ $district_array = array_unique($district_array);
     </table>
     <blockquote>
         Sumber diperolehi dari : <a
-                href="https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/clusters.csv">MoH-Malaysia
+            href="https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/clusters.csv">MoH-Malaysia
             GITHUB </a>
         <br/>
         Data hanya sekadar apa ada dan tidak ada berkaitan dengan server KKM
@@ -600,7 +461,7 @@ $district_array = array_unique($district_array);
     $.fn.dataTable.moment('DD/MM/YYYY');
 
     $(document).ready(function () {
-        const tableKualaMuda = $('#kuala_muda').DataTable({
+        const tableKedah = $('#kedah').DataTable({
             "iDisplayLength": 100,
             "ordering": true,
             "footerCallback": function (row, data, start, end, display) {
@@ -759,169 +620,8 @@ $district_array = array_unique($district_array);
                 'csv'
             ]
         });
-        tableKualaMuda.order([[7, 'asc'], [4, 'desc']]).draw();
-        // non kuala muda
+        tableKedah.order([[7, 'asc'], [4, 'desc']]).draw();
 
-        const tableNonKualaMuda = $('#non_kuala_muda').DataTable({
-            "iDisplayLength": 100,
-            "ordering": true,
-            "footerCallback": function (row, data, start, end, display) {
-                var api = this.api(), data;
-
-                // Remove the formatting to get integer data for summation
-                var intVal = function (i) {
-                    return typeof i === 'string' ?
-                        i.replace(/[\$,]/g, '') * 1 :
-                        typeof i === 'number' ?
-                            i : 0;
-                };
-                // new
-                const totalNew = api
-                    .column(8)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotalNew = api
-                    .column(8, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(8).footer()).html(
-                    pageTotalNew.toLocaleString() + ' / ' + totalNew.toLocaleString() + ')'
-                );
-                // total
-                const total = api
-                    .column(9)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotal = api
-                    .column(9, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(9).footer()).html(
-                    pageTotal.toLocaleString() + ' / ' + total.toLocaleString() + ')'
-                );
-                // active
-                const totalActive = api
-                    .column(10)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotalActive = api
-                    .column(10, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(10).footer()).html(
-                    pageTotalActive.toLocaleString() + ' / ' + totalActive.toLocaleString() + ')'
-                );
-                // test
-
-                const totalTest = api
-                    .column(11)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotalTest = api
-                    .column(11, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(11).footer()).html(
-                    pageTotalTest.toLocaleString() + ' / ' + totalTest.toLocaleString() + ')'
-                );
-                // icu
-                const totalIcu = api
-                    .column(12)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotalIcu = api
-                    .column(12, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(12).footer()).html(
-                    pageTotalIcu.toLocaleString() + ' / ' + totalIcu.toLocaleString() + ')'
-                );
-                // death
-                const totalDeath = api
-                    .column(13)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotalDeath = api
-                    .column(13, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(13).footer()).html(
-                    pageTotalDeath.toLocaleString() + ' / ' + totalDeath.toLocaleString() + ')'
-                );
-                // recover
-                const totalRecover = api
-                    .column(14)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Total over this page
-                const pageTotalRecover = api
-                    .column(14, {page: 'current'})
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                // Update footer
-                $(api.column(14).footer()).html(
-                    pageTotalRecover.toLocaleString() + ' / ' + totalRecover.toLocaleString() + ')'
-                );
-            },
-            "buttons": [
-                'csv'
-            ]
-        });
-        tableNonKualaMuda.order([[7, 'asc'], [4, 'desc']]).draw();
     });
 </script>
 </body>
