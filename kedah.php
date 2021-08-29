@@ -18,6 +18,9 @@
  */
 // get data from the server or local path
 $server_path = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/clusters.csv";
+$server_path_cases = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/cases_state.csv";
+$server_path_death = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/deaths_state.csv";
+$server_path_icu = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/icu.csv";
 $local_path = "clusters.csv";
 
 // temp will be using local path
@@ -49,7 +52,7 @@ $cluster_info_outside_district = [];
 // category_array
 $category_array = [];
 $status_array = [];
-// sometimes we want to distinct kuala muda  but not the sub cluster
+
 $district_array = [];
 if (($handle = fopen($path, "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000)) !== FALSE) {
@@ -87,10 +90,10 @@ $sumActiveCluster = 0;
 $sumActiveDistrictCluster = 0;
 $sumEndedCluster = 0;
 $sumEndedDistrictCluster = 0;
-
+$findMe = "Kedah";
+//$findMe = "Negeri Sembilan";
 for ($i = 0; $i < count($cluster_info); $i++) {
 
-    $findMe = "Kedah";
     $state_name[] = $cluster_info[$i][0];
     $pos = strpos($cluster_info[$i][1], $findMe);
     if ($pos !== false) {
@@ -165,6 +168,55 @@ $district_array = array_unique($district_array);
 
 //echo  "<!---  ".var_export($district_array)." -->";
 
+
+$str = "";
+$totalLocal = 0;
+$totalImport = 0;
+if (($handle = fopen($server_path_cases, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
+        $pos = strpos($data[1], $findMe);
+        if ($pos !== false) {
+            $str .= "{date:\"" . $data[0] . "\",local:" . intval($data[2]) . ",import:" . intval($data[3]) . "},\n";
+            $totalLocal += intval($data[2]);
+            $totalImport += intval($data[3]);
+        }
+
+        $row++;
+    }
+    fclose($handle);
+}
+$totalDeath = 0;
+$totalBid = 0;
+$strDeath = "";
+if (($handle = fopen($server_path_death, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
+        $pos = strpos($data[1], $findMe);
+        if ($pos !== false) {
+            $strDeath .= "{date:\"" . $data[0] . "\",death:" . intval($data[2]) . ",bid:" . intval($data[3]) . "},\n";
+            $totalDeath += intval($data[2]);
+            $totalBid += intval($data[3]);
+        }
+
+        $row++;
+    }
+    fclose($handle);
+}
+
+$strIcu  = "";
+if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
+        $pos = strpos($data[1], $findMe);
+        if ($pos !== false) {
+            $percent = intval(($data[8]/$data[4]) * 100);
+            $percentAll = intval((($data[8]+$data[10])/$data[4]) * 100);
+            $strIcu.="{date:\"".$data[0]."\",icuBed:".intval($data[4]).",icuBedCovid19:".intval($data[8]).",percentage:".$percent.",percentageAll:".$percentAll."},\n";
+
+        }
+
+        $row++;
+    }
+    fclose($handle);
+}
 ?>
 <html lang="ms">
 <head>
@@ -184,6 +236,10 @@ $district_array = array_unique($district_array);
     <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.10.25/sorting/datetime-moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.0/chart.min.js"
+            integrity="sha512-asxKqQghC1oBShyhiBwA+YgotaSYKxGP1rcSYTDrB0U6DxwlJjU59B67U8+5/++uFjcuVM8Hh5cokLjZlhm3Vg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script async
             src="https://www.googletagmanager.com/gtag/js?id=UA-129654074-1"></script>
     <script>
@@ -200,17 +256,87 @@ $district_array = array_unique($district_array);
 </head>
 <body>
 <div class="container-fluid" style="background: #D3D3D3">
-    <br/>
+
     <h1>Analisa data covid-19 di Kedah berdasarkan kluster terkini </h1>
     <br/>
     <h2>
         <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span></h2>
     <br/>
+
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Kes Tempatan (Kedah)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalLocal); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Kes Import (Kedah)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalImport); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div style="height: 250px;padding: 10px;background-color: white">
+        <canvas id="kedahCases" height="250" width="250"></canvas>
+    </div>
+    <br/>
+
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Kematian (Kedah)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalDeath); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    BID (Kematian dibawa ke Hospital (Kedah)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalBid); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div style="height: 250px;padding: 10px;background-color: white">
+    <canvas id="kedahDeath" height="250" width="250"></canvas>
+    </div>
+    <br/>
+    ** data ini hanya berdasarkan kkm github.kalau ada salah kena tanya kkm sendiri apa field yang patut. kami ambil apa ada sahaja
+    <br />
+    <br />
+    <div style="height: 250px;padding: 10px;background-color: white">
+        <canvas id="kedahIcu" height="250" width="250"></canvas>
+    </div>
     <br />
     <h2>
         Statistik Aktif
     </h2>
-    <br />
+    <br/>
     <div class="row align-items-center">
         <div class="col">
             <div class="card">
@@ -240,7 +366,7 @@ $district_array = array_unique($district_array);
     <br/>
 
     <h2>Statisik Category</h2>
-    <br />
+    <br/>
     <div class="row align-items-center">
         <div class="col">
             <div class="card">
@@ -450,7 +576,7 @@ $district_array = array_unique($district_array);
     </table>
     <blockquote>
         Sumber diperolehi dari : <a
-            href="https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/clusters.csv">MoH-Malaysia
+                href="https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/">MoH-Malaysia
             GITHUB </a>
         <br/>
         Data hanya sekadar apa ada dan tidak ada berkaitan dengan server KKM
@@ -458,6 +584,117 @@ $district_array = array_unique($district_array);
 </div>
 
 <script>
+
+
+    const dataCases = [
+        <?php echo $str; ?>
+    ];
+    const dataDeath = [
+        <?php echo $strDeath; ?>
+    ];
+
+    const dataIcu = [
+        <?php echo $strIcu; ?>
+    ];
+    new Chart("kedahCases", {
+        type: 'line',
+        data: {
+            labels: dataCases.map(o => o.date),
+            datasets: [{
+                label: "Tempatan",
+                fill: false,
+                borderColor: "rgba(59, 89, 152, 1)",
+                data: dataCases.map(o => o.local)
+            }, {
+                label: "Luar Negara",
+                fill: false,
+                borderColor: "rgba(255, 0, 0, 1)",
+                data: dataCases.map(o => o.import)
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    type: 'date',
+                    time: {
+                        unit: 'day'
+                    }
+                }]
+            }
+        }
+    });
+
+    new Chart("kedahDeath", {
+        type: 'line',
+        data: {
+            labels: dataDeath.map(o => o.date),
+            datasets: [{
+                label: "Kematian",
+                fill: false,
+                borderColor: "rgba(59, 89, 152, 1)",
+                data: dataDeath.map(o => o.death)
+            }, {
+                label: "BID",
+                fill: false,
+                borderColor: "rgba(255, 0, 0, 1)",
+                data: dataDeath.map(o => o.bid)
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    type: 'date',
+                    time: {
+                        unit: 'day'
+                    }
+                }]
+            }
+        }
+    });
+
+    new Chart("kedahIcu", {
+        type: 'line',
+        data: {
+            labels: dataIcu.map(o => o.date ),
+            datasets: [{
+                label: "Katil Icu ",
+                fill: false,
+                borderColor: "rgba(59, 89, 152, 1)",
+                data: dataIcu.map(o => o.icuBed)
+            },{
+                label: "Jumlah katil khas untuk covid",
+                fill: false,
+                borderColor: "rgba(255, 0, 0, 1)",
+                data: dataIcu.map(o => o.icuBedCovid19)
+            },{
+                label: "%covid/ Jumlah Katil",
+                fill: false,
+                borderColor: "rgba(255, 255, 0, 1)",
+                data: dataIcu.map(o => o.percentage)
+            },{
+                label: "%covid+%nonCovid/ Jumlah Katil",
+                fill: false,
+                borderColor: "rgba(145, 61, 136, 1)",
+                data: dataIcu.map(o => o.percentageAll)
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive:true,
+            scales: {
+                xAxes: [{
+                    type: 'date',
+                    time: {
+                        unit: 'day'
+                    }
+                }]
+            }
+        }
+    });
     $.fn.dataTable.moment('DD/MM/YYYY');
 
     $(document).ready(function () {
