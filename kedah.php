@@ -21,6 +21,8 @@ $server_path = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/ma
 $server_path_cases = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/cases_state.csv";
 $server_path_death = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/deaths_state.csv";
 $server_path_icu = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/epidemic/icu.csv";
+$server_path_vaccine = "https://raw.githubusercontent.com/CITF-Malaysia/citf-public/main/vaccination/vax_state.csv";
+$server_path_population = "https://raw.githubusercontent.com/MoH-Malaysia/covid19-public/main/static/population.csv";
 $local_path = "clusters.csv";
 
 // temp will be using local path
@@ -91,6 +93,7 @@ $sumActiveDistrictCluster = 0;
 $sumEndedCluster = 0;
 $sumEndedDistrictCluster = 0;
 $findMe = "Kedah";
+///$findMe = "Johor";
 //$findMe = "Negeri Sembilan";
 for ($i = 0; $i < count($cluster_info); $i++) {
 
@@ -172,13 +175,15 @@ $district_array = array_unique($district_array);
 $str = "";
 $totalLocal = 0;
 $totalImport = 0;
+$totalRecover = 0;
 if (($handle = fopen($server_path_cases, "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000)) !== FALSE) {
         $pos = strpos($data[1], $findMe);
         if ($pos !== false) {
-            $str .= "{date:\"" . $data[0] . "\",local:" . intval($data[2]) . ",import:" . intval($data[3]) . "},\n";
+            $str .= "{date:\"" . $data[0] . "\",local:" . intval($data[2]) . ",import:" . intval($data[3]) . ",recover:".intval($data[4])."},\n";
             $totalLocal += intval($data[2]);
             $totalImport += intval($data[3]);
+            $totalRecover += intval($data[4]);
         }
 
         $row++;
@@ -187,6 +192,7 @@ if (($handle = fopen($server_path_cases, "r")) !== FALSE) {
 }
 $totalDeath = 0;
 $totalBid = 0;
+
 $strDeath = "";
 if (($handle = fopen($server_path_death, "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000)) !== FALSE) {
@@ -211,6 +217,37 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
             $percentAll = intval((($data[8]+$data[10])/$data[4]) * 100);
             $strIcu.="{date:\"".$data[0]."\",icuBed:".intval($data[4]).",icuBedCovid19:".intval($data[8]).",percentage:".$percent.",percentageAll:".$percentAll."},\n";
 
+        }
+
+        $row++;
+    }
+    fclose($handle);
+}
+
+
+$totalDailyFull = 0;
+$totalDailyPartial = 0;
+
+$totalPopulation =  0 ;
+if (($handle = fopen($server_path_population, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
+        $pos = strpos($data[0], $findMe);
+        if ($pos !== false) {
+            $totalPopulation = intval($data[2]);
+        }
+    }
+    fclose($handle);
+}
+
+$strVaccine = "";
+if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
+        $pos = strpos($data[1], $findMe);
+        if ($pos !== false) {
+            $total = $data[2] + $data[3];
+            $strVaccine .= "{date:\"" . $data[0] . "\",first:" . intval($data[2]) . ",second:" . intval($data[3]) . ",total:".$total."},\n";
+            $totalDailyPartial += intval($data[2]);
+            $totalDailyFull += intval($data[3]);
         }
 
         $row++;
@@ -256,8 +293,8 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
 </head>
 <body>
 <div class="container-fluid" style="background: #D3D3D3">
-
-    <h1>Analisa data covid-19 di Kedah berdasarkan kluster terkini </h1>
+    <br />
+    <h1>Analisa data covid-19 di <?php echo $findMe; ?> <br /> <small>berdasarkan https://github.com/MoH-Malaysia/covid19-public dan <br />https://github.com/CITF-Malaysia/citf-public</small> </h1>
     <br/>
     <h2>
         <span style="color:red">** amaran  dilarang share ke sumber telegram palsu</span></h2>
@@ -267,7 +304,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Kes Tempatan (Kedah)
+                    Kes Tempatan (<?php echo $findMe; ?>)
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -279,7 +316,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Kes Import (Kedah)
+                    Kes Import (<?php echo $findMe; ?>)
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -288,18 +325,88 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
                 </div>
             </div>
         </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Pulih (<?php echo $findMe; ?>)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalRecover); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Aktif Kes (<?php echo $findMe; ?>) Tempatan + Import - Pulih
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format((($totalLocal+$totalImport)-$totalRecover)); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
     <br/>
     <div style="height: 250px;padding: 10px;background-color: white">
-        <canvas id="kedahCases" height="250" width="250"></canvas>
+        <canvas id="stateCases" height="250" width="250"></canvas>
     </div>
     <br/>
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Dos Pertama (<?php echo $findMe; ?>)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalDailyPartial); ?> (<?php echo (round(($totalDailyPartial/$totalPopulation) * 100,2)) ?>)  %
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Dos Kedua (<?php echo $findMe; ?>)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalDailyFull); ?> (<?php echo (round(($totalDailyFull/$totalPopulation) * 100,2)) ?>)  %
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Jumlah (<?php echo $findMe; ?>)
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($totalDailyFull+$totalDailyPartial); ?> (<?php echo (round((($totalDailyPartial+$totalDailyFull)/$totalPopulation) * 100,2)) ?>) %
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br/>
+    <div style="height: 250px;padding: 10px;background-color: white">
+        <canvas id="stateVaccine" height="250" width="250"></canvas>
+    </div>
+    <br/>
+
 
     <div class="row align-items-center">
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Kematian (Kedah)
+                    Kematian (<?php echo $findMe; ?>)
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -311,7 +418,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    BID (Kematian dibawa ke Hospital (Kedah)
+                    BID (Kematian dibawa ke Hospital (<?php echo $findMe; ?>)
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -320,17 +427,18 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
                 </div>
             </div>
         </div>
+
     </div>
     <br/>
     <div style="height: 250px;padding: 10px;background-color: white">
-    <canvas id="kedahDeath" height="250" width="250"></canvas>
+    <canvas id="stateDeath" height="250" width="250"></canvas>
     </div>
     <br/>
     ** data ini hanya berdasarkan kkm github.kalau ada salah kena tanya kkm sendiri apa field yang patut. kami ambil apa ada sahaja
     <br />
     <br />
     <div style="height: 250px;padding: 10px;background-color: white">
-        <canvas id="kedahIcu" height="250" width="250"></canvas>
+        <canvas id="stateIcu" height="250" width="250"></canvas>
     </div>
     <br />
     <h2>
@@ -446,7 +554,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
         </div>
     </div>
     <br/>
-    <table id="kedah" class="table table-striped table-bordered" style="width:100%">
+    <table id="state" class="table table-striped table-bordered" style="width:100%">
         <thead class="thead-dark">
         <tr>
             <th>#</th>
@@ -596,7 +704,10 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
     const dataIcu = [
         <?php echo $strIcu; ?>
     ];
-    new Chart("kedahCases", {
+    const dataVaccine = [
+        <?php echo $strVaccine; ?>
+    ];
+    new Chart("stateCases", {
         type: 'line',
         data: {
             labels: dataCases.map(o => o.date),
@@ -610,6 +721,11 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
                 fill: false,
                 borderColor: "rgba(255, 0, 0, 1)",
                 data: dataCases.map(o => o.import)
+            }, {
+                label: "Pulih",
+                fill: false,
+                borderColor: "rgba(41, 241, 195, 1)",
+                data: dataCases.map(o => o.recover)
             }],
         },
         options: {
@@ -626,7 +742,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
         }
     });
 
-    new Chart("kedahDeath", {
+    new Chart("stateDeath", {
         type: 'line',
         data: {
             labels: dataDeath.map(o => o.date),
@@ -656,7 +772,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
         }
     });
 
-    new Chart("kedahIcu", {
+    new Chart("stateIcu", {
         type: 'line',
         data: {
             labels: dataIcu.map(o => o.date ),
@@ -695,10 +811,45 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
             }
         }
     });
+
+    new Chart("stateVaccine", {
+        type: 'line',
+        data: {
+            labels: dataVaccine.map(o => o.date ),
+            datasets: [{
+                label: "Dos Pertama ",
+                fill: false,
+                borderColor: "rgba(59, 89, 152, 1)",
+                data: dataVaccine.map(o => o.first)
+            },{
+                label: "Dos Kedua",
+                fill: false,
+                borderColor: "rgba(255, 0, 0, 1)",
+                data: dataVaccine.map(o => o.second)
+            },{
+                label: "Jumlah",
+                fill: false,
+                borderColor: "rgba(145, 61, 136, 1)",
+                data: dataVaccine.map(o => o.total)
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive:true,
+            scales: {
+                xAxes: [{
+                    type: 'date',
+                    time: {
+                        unit: 'day'
+                    }
+                }]
+            }
+        }
+    });
     $.fn.dataTable.moment('DD/MM/YYYY');
 
     $(document).ready(function () {
-        const tableKedah = $('#kedah').DataTable({
+        const tableState = $('#state').DataTable({
             "iDisplayLength": 100,
             "ordering": true,
             "footerCallback": function (row, data, start, end, display) {
@@ -857,7 +1008,7 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
                 'csv'
             ]
         });
-        tableKedah.order([[7, 'asc'], [4, 'desc']]).draw();
+        tableState.order([[7, 'asc'], [4, 'desc']]).draw();
 
     });
 </script>
