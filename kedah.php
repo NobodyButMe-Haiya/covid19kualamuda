@@ -209,6 +209,10 @@ if (($handle = fopen($server_path_death, "r")) !== FALSE) {
 }
 
 $strIcu  = "";
+$icuBed = 0;
+$icuBedCovid19 = 0;
+$percent  =0 ;
+$percentAll = 0;
 if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000)) !== FALSE) {
         $pos = strpos($data[1], $findMe);
@@ -216,6 +220,9 @@ if (($handle = fopen($server_path_icu, "r")) !== FALSE) {
             $percent = intval(($data[8]/$data[4]) * 100);
             $percentAll = intval((($data[8]+$data[10])/$data[4]) * 100);
             $strIcu.="{date:\"".$data[0]."\",icuBed:".intval($data[4]).",icuBedCovid19:".intval($data[8]).",percentage:".$percent.",percentageAll:".$percentAll."},\n";
+            // we just take the last figure date
+            $icuBed = $data[4];
+            $icuBedCovid19 = $data[8];
 
         }
 
@@ -304,7 +311,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Kes Tempatan (<?php echo $findMe; ?>)
+                    Kes Tempatan 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -316,7 +323,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Kes Import (<?php echo $findMe; ?>)
+                    Kes Import 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -328,7 +335,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Pulih (<?php echo $findMe; ?>)
+                    Pulih 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -340,7 +347,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Aktif Kes (<?php echo $findMe; ?>) Tempatan + Import - Pulih
+                    Tempatan + Import - Pulih
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -359,7 +366,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Dos Pertama (<?php echo $findMe; ?>)
+                    Dos Pertama 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -371,7 +378,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Dos Kedua (<?php echo $findMe; ?>)
+                    Dos Kedua 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -384,7 +391,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Jumlah (<?php echo $findMe; ?>)
+                    Jumlah 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -406,7 +413,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    Kematian (<?php echo $findMe; ?>)
+                    Kematian 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -418,7 +425,7 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    BID (Kematian dibawa ke Hospital (<?php echo $findMe; ?>)
+                    BID (Kematian dibawa ke Hospital 
                 </div>
                 <div class="card-body">
                     <span style="font-size: 24px;text-align: center">
@@ -436,6 +443,60 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
     <br/>
     ** data ini hanya berdasarkan kkm github.kalau ada salah kena tanya kkm sendiri apa field yang patut. kami ambil apa ada sahaja
     <br />
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Katil ICU   <br /> &nbsp;
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($icuBed); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Katil Icu Covid  <br /> &nbsp;
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($icuBedCovid19); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                     Covid 19 / Jumlah Katil Icu %  <br /> &nbsp;
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($percent); ?> %
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Covid 19+ Bukan Covid 19 <br />/ Jumlah Katil Icu %
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 24px;text-align: center">
+                        <?php echo number_format($percentAll); ?> %
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br/>
     <br />
     <div style="height: 250px;padding: 10px;background-color: white">
         <canvas id="stateIcu" height="250" width="250"></canvas>
@@ -782,17 +843,17 @@ if (($handle = fopen($server_path_vaccine, "r")) !== FALSE) {
                 borderColor: "rgba(59, 89, 152, 1)",
                 data: dataIcu.map(o => o.icuBed)
             },{
-                label: "Jumlah katil khas untuk covid",
+                label: "Katil Icu Covid",
                 fill: false,
                 borderColor: "rgba(255, 0, 0, 1)",
                 data: dataIcu.map(o => o.icuBedCovid19)
             },{
-                label: "%covid/ Jumlah Katil",
+                label: "(%covid)/ Jumlah Katil %",
                 fill: false,
                 borderColor: "rgba(255, 255, 0, 1)",
                 data: dataIcu.map(o => o.percentage)
             },{
-                label: "%covid+%nonCovid/ Jumlah Katil",
+                label: " (covid+nonCovid) / Katil Icu %",
                 fill: false,
                 borderColor: "rgba(145, 61, 136, 1)",
                 data: dataIcu.map(o => o.percentageAll)
